@@ -1,26 +1,27 @@
 import json
+import pandas as pd
 import time
-
 from kafka import KafkaProducer
 
-import random
+KAFKA_BROKER = "localhost:9092"
+LABEL_COL = "Diabetes_012"
+DATA_PATH = "/Users/andrej/Desktop/rnmp/RNMP_homework1/data/online.csv"
+TOPIC_NAME = "health-data"
 
-keys = ['A', 'B', 'C', 'D']
+producer = KafkaProducer(
+    bootstrap_servers=KAFKA_BROKER,
+    value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+    security_protocol="PLAINTEXT"
+)
 
-producer = KafkaProducer(bootstrap_servers='localhost:9092', security_protocol="PLAINTEXT")
+df = pd.read_csv(DATA_PATH)
 
-while True:
-    key = keys[random.randint(0, len(keys)-1)]
-    value = random.randint(0, 1000)
-    record = {
-        'key': key,
-        'value': value,
-        'timestamp': int(time.time() * 1000)
-    }
+for idx, row in df.iterrows():
+    data = row.drop(LABEL_COL).to_dict()
+    producer.send(TOPIC_NAME, value=data)
+    print(f"✅ Sent row {idx}: {data}")
+    time.sleep(0.1)
 
-    print(json.dumps(record))
-    producer.send(
-        topic="sensors",
-        value=json.dumps(record).encode("utf-8")
-    )
-    time.sleep(random.randint(500, 2000) / 1000.0)
+producer.flush()
+producer.close()
+print(f"🎉 All data sent to Kafka topic: {TOPIC_NAME}")
