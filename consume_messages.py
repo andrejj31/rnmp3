@@ -1,10 +1,8 @@
 from kafka import KafkaConsumer
 
-# Kafka configuration
 bootstrap_servers = 'localhost:9092'
 topic = 'health-data-predicted'
 
-# Create a Kafka consumer
 consumer = KafkaConsumer(topic,
                          bootstrap_servers=bootstrap_servers,
                          group_id='my_consumer_group',

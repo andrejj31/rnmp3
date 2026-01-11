@@ -12,7 +12,6 @@ spark = SparkSession.builder \
 
 df = spark.read.csv("/Users/andrej/Desktop/rnmp/RNMP_homework1/data/offline.csv", header=True, inferSchema=True)
 
-# Провери дистрибуција
 print("\n" + "=" * 60)
 print("CLASS DISTRIBUTION:")
 df.groupBy("Diabetes_012").count().orderBy("Diabetes_012").show()
@@ -20,7 +19,6 @@ print("=" * 60 + "\n")
 
 feature_columns = [col for col in df.columns if col != "Diabetes_012"]
 
-# Креирај VectorAssembler и StandardScaler
 assembler = VectorAssembler(inputCols=feature_columns, outputCol="raw_features")
 scaler = StandardScaler(inputCol="raw_features", outputCol="features", withStd=True, withMean=True)
 
@@ -40,7 +38,6 @@ best_score = -1
 best_name = ""
 
 for name, model in models:
-    # Вклучи assembler и scaler во pipeline
     pipeline = Pipeline(stages=[assembler, scaler, model])
     trained_model = pipeline.fit(train_df)
 
@@ -54,7 +51,6 @@ for name, model in models:
     print(f"F1 Score: {f1:.4f}")
     print(f"Accuracy: {accuracy:.4f}")
 
-    # Провери предикции
     print(f"Prediction distribution:")
     predictions.groupBy("prediction").count().orderBy("prediction").show()
 
@@ -65,6 +61,6 @@ for name, model in models:
 
 model_path = "../models/best_model"
 best_model.write().overwrite().save(model_path)
-print(f"\n✅ Best model: {best_name} saved with F1={best_score:.4f}")
+print(f"\n Best model: {best_name} saved with F1={best_score:.4f}")
 
 spark.stop()

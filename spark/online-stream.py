@@ -17,12 +17,6 @@ spark.sparkContext.setLogLevel("WARN")
 model_path = "/Users/andrej/Desktop/rnmp/RNMP_homework1/models/best_model"
 model = PipelineModel.load(model_path)
 
-print("\n" + "="*60)
-print("MODEL PIPELINE STAGES:")
-for i, stage in enumerate(model.stages):
-    print(f"  Stage {i}: {type(stage).__name__}")
-print("="*60 + "\n")
-
 raw_stream = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", KAFKA_BOOTSTRAP_SERVER) \
